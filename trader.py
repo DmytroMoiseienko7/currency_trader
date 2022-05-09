@@ -5,10 +5,10 @@ import json
 args = ArgumentParser()
 
 args.add_argument("command", nargs='?')
-args.add_argument("amount", type=float, nargs='?')
+args.add_argument("second_command", nargs='?')
 args = vars(args.parse_args())
 command = args["command"]
-cur_amount = args["amount"]
+second_command = args["second_command"]
 
 file_config = "config.json"
 file_Memory = "Memory.json"
@@ -27,7 +27,7 @@ def update_rate(price, delta):
 
 
 def show_available(account_UAH, account_USD):
-    return f'Остаток на счету: \n {account_UAH} UAH \n {account_USD} USD'
+    return f'Your current balance is: \n {account_UAH} UAH \n {account_USD} USD'
 
 
 def currency_rate_generator(price, delta):
@@ -80,14 +80,15 @@ def sell_all(balance_UAH, balance_USD):
 
 
 def restart_game():
-    balance_UAH = read_json_file(file_config)["account_UAH"]
-    balance_USD = read_json_file(file_config)["account_USD"]
-    balance_update(balance_UAH, balance_USD)
-    data["current_rate"] = rate_for_restart
+    data["account_UAH"] = default_balance_UAH
+    data["account_USD"] = default_balance_USD
+    data["current_rate"] = default_rate
     write_to_json(file_Memory, data)
 
 
-rate_for_restart = read_json_file(file_config)["current_rate"]
+default_rate = read_json_file(file_config)["current_rate"]
+default_balance_UAH = read_json_file(file_config)["account_UAH"]
+default_balance_USD = read_json_file(file_config)["account_USD"]
 price = read_json_file(file_config)["price"]
 delta = read_json_file(file_config)["delta"]
 currency_rate = currency_rate_generator(price, delta)
@@ -109,13 +110,13 @@ elif command == "NEXT":
     write_to_json(file_Memory, data)
 elif command == "AVAILABLE":
     print(available)
-elif command == "BUY":
-    buy_usd(cur_amount, account_UAH, account_USD)
-elif command == "SELL":
-    sell_usd(cur_amount, account_UAH, account_USD)
-elif command == "BUY_ALL":
+elif command == "BUY" and second_command.isdigit():
+    buy_usd(float(second_command), account_UAH, account_USD)
+elif command == "SELL" and second_command.isdigit():
+    sell_usd(float(second_command), account_UAH, account_USD)
+elif command == "BUY" and second_command == "ALL":
     buy_all(account_UAH, account_USD)
-elif command == "SELL_ALL":
+elif command == "SELL" and second_command == "ALL":
     sell_all(account_UAH, account_USD)
 elif command == "RESTART":
     restart_game()
